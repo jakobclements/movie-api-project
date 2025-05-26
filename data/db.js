@@ -22,9 +22,8 @@ if (rows === 0) {
     ];
 
     // Insert starting data
-    const insert = db.prepare(`INSERT INTO movies (title, year) VALUES (?, ?)`);
     movies.forEach(movie => {
-        insert.run(movie.title, movie.year);
+        db.prepare(`INSERT INTO movies (title, year) VALUES (?, ?)`).run(movie.title, movie.year);
     });
 
     console.log('Database initialized');
