@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Movie</title>
+</head>
+<body>
+
+    <!-- Edit movie form -->
+    <h1>Edit Movie</h1>
+    <form id="edit-movie-form">
+        <input id="title" type="text" placeholder="Title" />
+        <input id="year" type="text" placeholder="Year" />
+        <button type="submit">Save</button>
+        <button type="button" id="discard-button">Discard Changes</button>
+  </form>
+    
+  <script>
+    // Get ID from URL
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+
+    // GET movie by ID
+    async function getMovie() {
+        const res = await fetch(`/api/library/${id}`);
+        const movie = await res.json();
+
+        // Set form values to current values
+        document.getElementById('title').value = movie.title;
+        document.getElementById('year').value = movie.year;
+    }
+
+    // Listen for save button click
+    document.getElementById('edit-movie-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        // Get form values
+        const title = document.getElementById('title').value;
+        const year = document.getElementById('year').value;
+
+        // PUT: save movie data
+        await fetch(`/api/library/edit/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title, year })
+        });
+
+        // Return to index
+        window.location.href = 'index.html';
+    });
+
+    // Discard button (leave without saving)
+    document.getElementById('discard-button').addEventListener('click', () => {
+      window.location.href = 'index.html';
+    });
+
+    getMovie();
+  </script>
+</body>
+</html>

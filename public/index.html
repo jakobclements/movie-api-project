@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Library</title>
+</head>
+<body>
+
+    <h1>Movie Librizzle</h1>
+
+    <!-- Add movie form -->
+    <form id="add-movie-form">
+        <input id="title" type="text" placeholder="Title" required />
+        <input id="year" type="text" placeholder="Year" required />
+        <button type="submit">Add Movie</button>
+    </form>
+
+    <!-- Movie list -->
+    <ul id="movie-list"></ul>
+    <script>
+
+        // GET: List movie library
+        async function getMovies() {
+            const res = await fetch('/api/library');
+            const movies = await res.json();
+
+            // Clear list
+            const list = document.getElementById('movie-list');
+            list.innerHTML = '';
+
+            // Build list
+            movies.forEach(movie => {
+                const li = document.createElement('li');
+
+                // Movie (Year)
+                li.textContent = `${movie.title} (${movie.year})`;
+
+                // Edit button
+                const editButton = document.createElement('button');
+                editButton.textContent = 'Edit';
+                editButton.onclick = () => {
+                    window.location.href = `edit.html?id=${movie.id}`;
+                }
+                li.appendChild(editButton);
+
+                // Delete button
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Delete';
+                deleteButton.onclick = async () => {
+                    // Confirm delete
+                    const confirmed = confirm(`Delete "${movie.title}"?`);
+                    if (confirmed) {
+                        // DELETE: Remove movie
+                        await fetch(`/api/library/delete/${movie.id}`, { method: 'DELETE' });
+                        // Refresh list
+                        getMovies();
+                    }
+                }
+                li.appendChild(deleteButton);
+                list.appendChild(li);
+            });
+        }
+
+        // POST: Add movie form submission
+        // Listen for submit button click
+        document.getElementById('add-movie-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Get values from form
+            const title = document.getElementById('title').value;
+            const year = document.getElementById('year').value;
+
+            // POST values to db
+            await fetch('/api/library/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title, year })
+            });
+
+            // Clear form fields
+            document.getElementById('title').value = '';
+            document.getElementById('year').value = '';
+            
+            // Refresh movie list
+            getMovies();
+        });
+
+        getMovies();
+    </script>
+</body>
+</html>
