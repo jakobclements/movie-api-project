@@ -40,9 +40,23 @@
 
             // Display each result
             movies.forEach(movie => {
+
+                // Movie details
                 const li = document.createElement('li');
                 li.textContent = `${movie.title} (${movie.release_date})`;
                 list.appendChild(li);
+
+                // Add movie button
+                const addButton = document.createElement('button');
+                addButton.textContent = 'Add';
+
+                // Listen for add button click
+                addButton.onclick = () => {
+                    
+                    // Add movie to database with title (year)
+                    addMovie(movie.title, movie.release_date.slice(0, 4));
+                }
+                li.appendChild(addButton);
             });
         }
 
@@ -54,6 +68,16 @@
             if (!query) {return};
             searchMovies(query);
         });
+
+        // Add movie to database
+        async function addMovie(title, year) {
+            // POST values to db
+            await fetch('/api/library/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title, year })
+            });
+        }
     </script>
 
 </body>
