@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TMDB Movie Search</title>
+</head>
+<body>
+    
+    <h1>TMDB Movie Search</h1>
+    <form id="search-form">
+        <input id="search-query" type="text" placeholder="What are you looking for?" />
+        <button type="submit">Search</button>
+    </form>
+
+    <h3>Search results</h3>
+    <ul id="search-results"></ul>
+
+    <script>
+        // Get search results from TMDB via search.js API
+        async function searchMovies(query) {
+            const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+            const movies = await res.json();
+
+            // Clear results list
+            const list = document.getElementById('search-results');
+            list.innerHTML = '';
+
+            // If no results found, exit
+            if (!movies || movies.length === 0) {
+                list.textContent = 'No results';
+                return;
+            }
+
+            // Display each result
+            movies.forEach(movie => {
+                const li = document.createElement('li');
+                li.textContent = `${movie.title} (${movie.release_date})`;
+                list.appendChild(li);
+            });
+        }
+
+        // Listen for search button click
+        document.getElementById('search-form').addEventListener('submit', async e => {
+            e.preventDefault();
+            // Get query form data
+            const query = document.getElementById('search-query').value;
+            if (!query) {return};
+            searchMovies(query);
+        });
+    </script>
+
+</body>
+</html>
